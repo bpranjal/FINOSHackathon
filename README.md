@@ -22,6 +22,7 @@ This project is built with **React**, **Flask**, and integrates with **Quicktype
    - Once the schema is generated, you can **copy** it or **export** it for use in your project.
   
 ## Team Members:
-
-
+   1. Aman Kumar
+   2. Nikhil Bhisle
+   3. Pranjal Bagal
 
