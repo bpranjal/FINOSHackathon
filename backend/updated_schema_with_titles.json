@@ -1,0 +1,117 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/UserSchema",
+    "definitions": {
+        "Address": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "street": {
+                    "type": "string",
+                    "title": "Street Address",
+                    "description": "The street address of the user."
+                },
+                "city": {
+                    "type": "string",
+                    "title": "City",
+                    "description": "The city where the user resides."
+                },
+                "id": {
+                    "$ref": "#/definitions/ID",
+                    "title": "Identification",
+                    "description": "Identification details for the address.",
+                    "type": "object"
+                }
+            },
+            "required": [
+                "city",
+                "id",
+                "street"
+            ],
+            "title": "Address"
+        },
+        "ID": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id1": {
+                    "type": "string",
+                    "format": "integer",
+                    "title": "ID Part 1",
+                    "description": "First part of the identification."
+                },
+                "id2": {
+                    "type": "string",
+                    "format": "integer",
+                    "title": "ID Part 2",
+                    "description": "Second part of the identification."
+                }
+            },
+            "required": [
+                "id1",
+                "id2"
+            ],
+            "title": "ID"
+        },
+        "UserSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "integer",
+                    "title": "User's Full Name",
+                    "description": "The full name of the user."
+                },
+                "age": {
+                    "type": "integer",
+                    "title": "User's Age",
+                    "description": "The age of the user in years.",
+                    "abcd": "adfskj"
+                },
+                "email": {
+                    "type": "string",
+                    "title": "Email Address",
+                    "description": "The user's email address."
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "title": "Active Status",
+                    "description": "Indicates whether the user account is active."
+                },
+                "balance": {
+                    "type": "number",
+                    "title": "Account Balance",
+                    "description": "The current balance in the user's account."
+                },
+                "address": {
+                    "$ref": "#/definitions/Address",
+                    "title": "User Address",
+                    "description": "The user's address details.",
+                    "type": "object"
+                },
+                "preferences": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "Communication Preferences",
+                    "description": "User's preferred modes of communication."
+                }
+            },
+            "required": [
+                "address",
+                "age",
+                "balance",
+                "email",
+                "is_active",
+                "name",
+                "preferences"
+            ],
+            "title": "User Information Schema",
+            "description": "This schema contains information about the user, including personal and contact details."
+        }
+    },
+    "title": "User Data Schema",
+    "description": "This schema defines the structure of the user data.",
+    "type": "object"
+}
