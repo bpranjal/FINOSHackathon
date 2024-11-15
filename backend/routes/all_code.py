@@ -27,7 +27,7 @@ def convert_json_to_json_schema(json_data, output_file='generated_schema.json'):
 
     try:
         result = subprocess.run(
-            ['node', 'quicktype_converter.js'],
+            ['node', './routes/quicktype_converter.js'],
             input=json_string,
             text=True,
             capture_output=True
@@ -117,100 +117,26 @@ def process_json_to_schema_with_titles(json_example, user_input):
     
     return json_schema
 
-# Sample example JSON
-# "json_example" : {
-#     "name": "John Doe",
-#     "age": 30,
-#     "email": "johndoe@example.com",
-#     "is_active": True,
-#     "balance": 1234.56,
-#     "address": {
-#         "street": "123 Main St",
-#         "city": "Anytown",
-#         "id": {
-
-#             "id1": "1",
-#             "id2": "2"
-#         }
-#     },
-#     "preferences": ["email", "sms"]
-# }
-
-# # # Sample user input JSON
-# "user_input" : {
-#     "rootDefinition": "UserSchema",  # The name you want to give to the root definition
-#     "rootDefinitionTitle": "User Information Schema",  # Title for the root definition
-#     "rootDefinitionDescription": "This schema contains information about the user, including personal and contact details.",  # Description for the root definition
-#     "schemaTitle": "User Data Schema",  # Main title for the schema
-#     "schemaDescription": "This schema defines the structure of the user data.",  # Main description for the schema
-#     "fields": {
-#         "name": {
-#             "title": "User's Full Name",
-#             "description": "The full name of the user.",
-#             "type": "string"
-#         },
-#         "age": {
-#             "title": "User's Age",
-#             "description": "The age of the user in years.",
-#             "type": "integer",
-#             "abcd": "adfskj"
-#         },
-#         "email": {
-#             "title": "Email Address",
-#             "description": "The user's email address.",
-#             "type": "string"
-#         },
-#         "is_active": {
-#             "title": "Active Status",
-#             "description": "Indicates whether the user account is active.",
-#             "type": "boolean"
-#         },
-#         "balance": {
-#             "title": "Account Balance",
-#             "description": "The current balance in the user's account.",
-#             "type": "number"
-#         },
-#         "address": {
-#             "title": "User Address",
-#             "description": "The user's address details.",
-#             "type": "object",
-#             "fields": {
-#                 "street": {
-#                     "title": "Street Address",
-#                     "description": "The street address of the user.",
-#                     "type": "string"
-#                 },
-#                 "city": {
-#                     "title": "City",
-#                     "description": "The city where the user resides.",
-#                     "type": "string"
-#                 },
-#                 "id": {
-#                     "title": "Identification",
-#                     "description": "Identification details for the address.",
-#                     "type": "object",
-#                     "fields": {
-#                         "id1": {
-#                             "title": "ID Part 1",
-#                             "description": "First part of the identification.",
-#                             "type": "string"
-#                         },
-#                         "id2": {
-#                             "title": "ID Part 2",
-#                             "description": "Second part of the identification.",
-#                             "type": "string"
-#                         }
-#                     }
-#                 }
-#             }
-#         },
-#         "preferences": {
-#             "title": "Communication Preferences",
-#             "description": "User's preferred modes of communication.",
-#             "type": "array of string"
-#         }
-#     }
-# }
-# Run the main function with the example JSON and user input
-# process_json_to_schema_with_titles(json_example, user_input)
-
+def schema_postprocessing(original_schema, examples):
+    first_level_keys = list(original_schema.keys())
+    definitions_keys = list(original_schema["definitions"].keys())
+    print(first_level_keys)
+    schema_name = original_schema[first_level_keys[1]].split('/')[-1]
+    definitions_except_root = {}
+    for key in definitions_keys: 
+        if key != schema_name:
+            definitions_except_root[key] = original_schema["definitions"][key]
+        
+    new_schema = {
+        first_level_keys[0]: original_schema[first_level_keys[0]],
+        first_level_keys[3]: original_schema[first_level_keys[3]],
+        first_level_keys[4]: original_schema[first_level_keys[4]],
+        first_level_keys[5]: original_schema[first_level_keys[5]],
+        "allOf": [
+            original_schema[first_level_keys[2]][schema_name],
+            {"$ref": "context.schema.json#/definitions/BaseContext"}
+        ],
+        "definitions": definitions_except_root,
+        "examples" : [examples]
+    }
+    return new_schema
