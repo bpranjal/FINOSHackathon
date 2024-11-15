@@ -1,4 +1,4 @@
-# FDC3 Context Schema Generator
+# FDC3 Context Schema Generator : SchemaCraft
 
 This tool helps developers easily define FDC3 context schemas in the correct JSON Schema format. The tool simplifies the process of generating context schemas by providing an intuitive UI for entering example JSON data, defining titles and descriptions for each field, selecting types, and generating the corresponding JSON Schema.
 
