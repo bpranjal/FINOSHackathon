@@ -210,7 +210,7 @@ function App() {
             <p>Your schema will appear here...</p>
           )}
           <button onClick={() => alert('JSON Schema Submitted Successfully!')} className="submit-button">
-            Submit Field Details
+            Submit Field Detail
           </button>
         </div>
       </div>
