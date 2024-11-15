@@ -40,7 +40,6 @@ def convert_json_to_json_schema(json_data, output_file='generated_schema.json'):
         print(f"Error running quicktype: {e}")
         return None
 
-# Function to update schema with user input titles, descriptions, and types
 def update_schema_with_user_input(schema, user_fields, parent_key='', global_definitions=None):
     if global_definitions is None:
         global_definitions = schema.get("definitions", {})
@@ -50,16 +49,21 @@ def update_schema_with_user_input(schema, user_fields, parent_key='', global_def
 
         if key in user_fields:
             user_info = user_fields[key]
-            value["title"] = user_info.get("title", f"Title for {key}")
-            value["description"] = user_info.get("description", f"Description for the field {key}.")
-            value["type"] = user_info.get("type", value.get("type"))
 
-            if value["type"] == "object" and "fields" in user_info:
-                update_schema_with_user_input(value, user_info["fields"], full_key, global_definitions)
-            elif value["type"] == "array of string":
+            # Update the schema's value with all fields from the user input
+            for user_field_key, user_field_value in user_info.items():
+                # If it's an "object" type and has "fields", process it recursively
+                if user_field_key == "fields" and value.get("type") == "object":
+                    update_schema_with_user_input(value, user_field_value, full_key, global_definitions)
+                else:
+                    value[user_field_key] = user_field_value
+
+            # Special handling for arrays of strings
+            if value.get("type") == "array of string":
                 value["type"] = "array"
                 value["items"] = {"type": "string"}
 
+        # If the value contains a reference, update the referenced definition
         if "$ref" in value:
             ref_path = value["$ref"].split("/")[-1]
             if ref_path in global_definitions:
