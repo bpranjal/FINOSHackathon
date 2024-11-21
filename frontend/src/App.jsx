@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
   const [jsonInput, setJsonInput] = useState('');
+  const [jsonExample, setJsonExample] = useState(null); // State to hold original JSON example
   const [jsonSchema, setJsonSchema] = useState({});
   const [fieldDetails, setFieldDetails] = useState({});
   const [staticFields, setStaticFields] = useState({
@@ -12,6 +14,7 @@ function App() {
     schemaTitle: '',
     schemaDescription: '',
   });
+  const [resultantSchema, setResultantSchema] = useState(null); // New state to store the final schema
 
   // Function to get field types from JSON data
   const getJsonFieldTypes = (jsonData, parentKey = '') => {
@@ -44,13 +47,14 @@ function App() {
   const handleInputSubmit = () => {
     try {
       const parsedJson = JSON.parse(jsonInput);
+      setJsonExample(parsedJson); // Store the original JSON example
       const generatedSchema = getJsonFieldTypes(parsedJson);
       setJsonSchema(generatedSchema);
 
       // Initialize field details (title, description) with default values
       const initialDetails = {};
       for (const field in generatedSchema) {
-        initialDetails[field] = { title: field, description: '' }; // Title = field name, Description = empty
+        initialDetails[field] = { title: field, description: '' };
       }
       setFieldDetails(initialDetails);
     } catch (error) {
@@ -80,6 +84,44 @@ function App() {
   const handleFieldTypeChange = (e, field) => {
     const updatedSchema = { ...jsonSchema, [field]: e.target.value };
     setJsonSchema(updatedSchema);
+  };
+
+  // Function to combine JSON example with user-modified data
+  const combineJsonWithUserInput = () => {
+    return {
+      jsonExample,
+      userFields: {
+        fieldDetails,
+        staticFields,
+      },
+    };
+  };
+
+  // Handle final submit to send data to backend
+  const handleFinalSubmit = async () => {
+    const combinedData = combineJsonWithUserInput();
+    console.log(JSON.stringify(combinedData));
+    try {
+      const response = await fetch('http://127.0.0.1:5000/schema', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(combinedData),
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+        setResultantSchema(responseData.result); // Store the resultant schema in state
+        alert('Data Submitted Successfully: ' + responseData.message);
+      } else {
+        const errorData = await response.json();
+        alert('Error submitting data: ' + errorData.error);
+      }
+    } catch (error) {
+      console.error('Error submitting data:', error);
+      alert('Error submitting data');
+    }
   };
 
   return (
@@ -209,9 +251,17 @@ function App() {
           ) : (
             <p>Your schema will appear here...</p>
           )}
-          <button onClick={() => alert('JSON Schema Submitted Successfully!')} className="submit-button">
-            Submit Field Detail
+          <button onClick={handleFinalSubmit} className="submit-button">
+            Submit Field Details
           </button>
+
+          {/* Display the resultant JSON Schema */}
+          {resultantSchema && (
+            <div className="result-schema">
+              <h2>Resultant JSON Schema</h2>
+              <pre>{JSON.stringify(resultantSchema, null, 2)}</pre>
+            </div>
+          )}
         </div>
       </div>
     </div>
